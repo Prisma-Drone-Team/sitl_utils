@@ -1,6 +1,6 @@
-# SITL Utilities - PX4 Simulation Environment with ROS2
+# UAV MOTION STACK
 
-This repository contains tools and configurations for PX4 SITL (Software In The Loop) simulation integrated with ROS2 Humble in a Docker environment.
+This repository contains tools and configurations for PX4 SITL (Software In The Loop) simulation and hardware-specific deployment.
 
 ## Architecture Overview
 
