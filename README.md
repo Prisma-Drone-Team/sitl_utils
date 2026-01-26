@@ -1,50 +1,70 @@
-# lee_controller
+# PX4 GZ Garden models
 
-## Requirements
-- **PX4 Autopilot**: Ensure PX4 for SITL is installed and configured.
-- **Gazebo Classic**: Installed and properly configured.
-- **Micro XRCE-DDS Agent**: Installed to enable DDS communication.
-- **ROS2 Environment**: Installed and workspace properly configured.
+- PX4 x500_depth modifed (to replace models in PX4-Autopilot/Tools/sitl_gazebo/models/)
+    ```bash
+    make px4_sitl gazebo_x500_depth
+    ```
+- gz bridge command:
+    ```bash
+    ros2 run ros_gz_bridge parameter_bridge /camera_info@sensor_msgs/msg/CameraInfo@gz.msgs.CameraInfo /camera@sensor_msgs/msg/Image@gz.msgs.Image /depth_camera@sensor_msgs/msg/Image@gz.msgs.Image
+    ```
+- LD_PRELOAD=/usr/lib/x86_64-linux-gnu/liboctomap.so ros2 run rviz2 rviz2
 
-## Additional Help and Troubleshooting
-For further assistance or if you need help, refer to the [PX4 ROS2 User Guide](https://docs.px4.io/main/en/ros2/user_guide.html).
+# Container Structure
 
-With dockerfiles: git clone --recursive https://github.com/Prisma-Drone-Team/uav_motion_stack.git -b main
+The Docker container is configured with the following structure:
 
-## 1. Starting the PX4 SITL Simulation in Gazebo Classic
-1. Navigate to the PX4 SITL directory:
-    ```
-    cd /path/to/PX4-Autopilot
-    ```
-2. Set the topic to stream over ROS2 network modifying the file https://github.com/PX4/PX4-Autopilot/blob/main/src/modules/uxrce_dds_client/dds_topics.yaml
+Docker Container    
+│ ├── /root
+    │ └── Micro-XRCE-DDS-Agent (Inside the container)
+    │ └── PX4 Firmware (Shared via Docker volume, exists outside the container)
+    │ └── ~/ros2_ws/src
+            │ ├── content of the `ros2_ws-src` (Source code for the ROS2 workspace) 
+            │ ├── px4-ros-com (Pre-loaded in the container) 
+            │ └── px4-msgs (Pre-loaded in the container) 
+               
 
-3. Start the SITL simulation with the desired model:
-    ```
-    make px4_sitl gazebo-classic
-    ```
-    **Important Note for Gazebo Garden Users:**
+## Details
 
-    If you are using Gazebo Garden instead of Gazebo Classic, be aware that the commands differ. Refer to the user guide for the specific instructions.
+- **Auto-deletion:** After its execution, the Docker container is automatically deleted. This helps in maintaining a clean environment by freeing up resources on the host machine.
 
-## 2. Starting the Micro XRCE-DDS Agent
-1. Open a new terminal.
-2. Run the following command to start the agent (ensure that any required environment variables are set):
-    ```
-    MicroXRCEAgent udp4 -p 8888
-    ```
-3. Verify that the agent is running and listening on the configured port.
+- **`ros2_ws-src` folder:** This folder should contain the source code for the ROS2 workspace. The Docker container comes pre-loaded with `px4-ros-com` and `px4-msgs`, which are dependencies for the PX4-ROS2 communication.
 
-## 3. Starting the Developed Node
-1. Build the project (if not already compiled):
-    ```
-    cd /home/dev/ros2_ws
-    colcon build --packages-select lee_controller
-    ```
-2. Source the environment:
-    ```
-    source install/setup.bash
-    ```
-3. Run the node:
-    ```
-    ros2 run lee_controller lee_controller --ros-args --params-file $(path_to_ros2_workspace)/src/lee_controller/conf/iris_param.yaml
-    ```
+- **PX4 Firmware:** The PX4 Firmware is not included in the Docker container. Instead, its folder is shared with the container using a Docker volume. This allows the firmware to be updated without having to rebuild the Docker container.
+
+
+### Prerequisites
+
+What things you need to install the software and how to install them:
+
+- Docker 
+
+### Installing
+
+A step by step series of examples that tell you how to get a development environment running:
+
+1. Clone the repository to your local machine.
+3. Clone the PX4 Firmware with `git clone --single-branch -b release/1.14 git@github.com:PX4/PX4-Autopilot.git --recursive`
+4. Build the docker imagege with `cd docker && docker build -t leo-img -f px4_humble_dockerfile.txt .`
+5. Run the container with `./run_cnt.sh`.
+
+## Running the tests
+
+Explain how to run the automated tests for this system.
+
+## Deployment
+
+Add additional notes about how to deploy this on a live system.
+
+## Built With
+
+* [PX4](https://px4.io/) - The flight stack used
+* [ROS](https://www.ros.org/) - Robot Operating System
+
+## Contributing
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
