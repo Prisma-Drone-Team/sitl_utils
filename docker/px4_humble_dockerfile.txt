@@ -129,3 +129,8 @@ RUN wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/
     && rm gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
 
 ENV PATH="/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}"
+
+RUN apt update && apt-get install -y --no-install-recommends \ 
+    ros-humble-joint-state-publisher* \
+    ros-humble-robot-state-publisher* \
+    && rm -rf /var/lib/apt/lists/*
