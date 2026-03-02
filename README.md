@@ -66,11 +66,6 @@ docker build -t leo-img -f px4_humble_dockerfile.txt .
 ./run_cnt.sh
 ```
 
-### 6. Initialize Submodules (if needed)
-```bash
-git submodule update --init --recursive
-```
-
 ## Development Configuration
 
 ### ROS2 Workspace Build
