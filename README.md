@@ -132,6 +132,66 @@ Implements the algorithm for smooth trajectory interpolation with integrated PX4
 - Auto-disarming on land detection
 - Automatic PX4 mode management
 
+#### Base Trajectory Interpolator Algorithm
+
+The core algorithm implements a smooth trajectory interpolator with velocity, acceleration, and jerk limiting for each axis. Here's the step-by-step process:
+
+**Input Parameters:**
+- UAV position **p**, desired goal position **p^cmd**
+- Parameters: (ωᵢ, ζᵢ, aᵢᵐᵃˣ, vᵢᵐᵃˣ, jᵢᵐᵃˣ) for i ∈ {x,y,z}
+- Timestep Δt
+- Initial conditions: pᵢʳᵉᶠ(0) = pᵢᶜᵐᵈ, vᵢʳᵉᶠ(0) = 0, aᵢʳᵉᶠ(0) = 0
+
+**Algorithm Steps:**
+
+For each axis i ∈ {x, y, z}:
+
+1. **Calculate desired acceleration:**
+   ```
+   aᵢᵈᵉˢ(t) = ωᵢ² × (pᵢᶠᵇ(t) - pᵢʳᵉᶠ(t)) - 2ζᵢωᵢvᵢʳᵉᶠ(t)
+   ```
+
+2. **Compute jerk:**
+   ```
+   jᵢ = (aᵢᵈᵉˢ - aᵢʳᵉᶠ) / Δt
+   ```
+
+3. **Apply jerk limiting:**
+   ```
+   if |jᵢ| > jᵢᵐᵃˣ:
+       jᵢ = sign(jᵢ) × jᵢᵐᵃˣ
+   
+   aᵢᵈᵉˢ = aᵢʳᵉᶠ + jᵢ × Δt
+   ```
+
+4. **Apply acceleration limiting:**
+   ```
+   if |aᵢᵈᵉˢ| > aᵢᵐᵃˣ:
+       aᵢʳᵉᶠ = sign(aᵢᵈᵉˢ) × aᵢᵐᵃˣ
+   else:
+       aᵢʳᵉᶠ = aᵢᵈᵉˢ
+   ```
+
+5. **Integrate to compute velocity:**
+   ```
+   vᵢᵈᵉˢ = vᵢʳᵉᶠ + aᵢʳᵉᶠ × Δt
+   ```
+
+6. **Apply velocity limiting:**
+   ```
+   if |vᵢᵈᵉˢ| > vᵢᵐᵃˣ:
+       vᵢʳᵉᶠ = sign(vᵢᵈᵉˢ) × vᵢᵐᵃˣ
+   else:
+       vᵢʳᵉᶠ = vᵢᵈᵉˢ
+   ```
+
+7. **Integrate to compute position:**
+   ```
+   pᵢʳᵉᶠ = pᵢʳᵉᶠ + vᵢʳᵉᶠ × Δt
+   ```
+
+This algorithm ensures smooth trajectory following by limiting jerk (rate of acceleration change), acceleration, and velocity independently for each axis, resulting in physically feasible and smooth drone movements.
+
 **Main Topics:**
 - **Subscriber:** `/path` (nav_msgs/Path) - Trajectory to follow
 - **Publisher:** `/px4_trajectory` (trajectory_msgs/MultiDOFJointTrajectory) - Interpolated trajectory
