@@ -14,8 +14,9 @@ docker run --rm -it --privileged \
 -v $(pwd)/ros2_ws-src/px4_ros_com:/root/ros2_ws/src/px4_ros_com:rw \
 -v $(pwd)/ros2_ws-src/pkg:/root/ros2_ws/src/pkg:rw \
 -v ~/docker_dev/rover_sim_motion_stack/src/pkg:/home/user/rover_ws/src/pkg \
+-v $(pwd)/init_multi.sh:/root/init_multi.sh:rw \
 --env="DISPLAY=$DISPLAY" \
 --network host \
---name=leo-cnt leo-img bash
+--name=leo-cnt leo-img /root/init_multi.sh
 
 

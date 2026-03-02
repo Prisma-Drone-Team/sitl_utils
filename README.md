@@ -40,12 +40,16 @@ git clone --recursive https://github.com/Prisma-Drone-Team/uav_motion_stack.git 
 cd uav_motion_stack
 ```
 
-### 2. Clone PX4 Firmware
+### 2. Clone PX4 Firmware (Optional)
+> **Note:** This step is completely optional given the current state of the repository. The custom firmware in step 3 is sufficient for the full stack.
+
 ```bash
 git clone --single-branch -b release/1.14 git@github.com:PX4/PX4-Autopilot.git --recursive
 ```
 
-### 3. Clone PX4 Neabotics
+### 3. Clone PX4 Neabotics (Required for Plug-and-Play)
+> **Important:** This custom firmware is **required** for the plug-and-play UAV motion stack functionality.
+
 ```bash
 git clone --single-branch -b feature/diffgains_fix_servo_k https://github.com/Prisma-Drone-Team/Px4_hcore_autopilot.git PX4_neabotics --recursive
 ```
@@ -55,6 +59,7 @@ git clone --single-branch -b feature/diffgains_fix_servo_k https://github.com/Pr
 cd docker
 docker build -t leo-img -f px4_humble_dockerfile.txt .
 ```
+> **Note:** The container uses Gazebo Garden simulator. A Dockerfile for Gazebo Classic is also available but its integration into the stack is deprecated.
 
 ### 5. Run Container
 ```bash
@@ -94,7 +99,11 @@ source install/setup.bash
 cd ros2_ws
 tmuxp load src/pkg/babyk_drone_manager/utils/simulation.yml
 ```
-
+### Terminate the simulation
+**Note:** kill the PX4 firmware and in the same terminal type: 
+```bash
+tmux kill-server
+```
 ## Package Documentation
 
 Each ROS2 package used in this system is documented in its own specific README:
@@ -118,7 +127,7 @@ Refer to the README.md file in each package folder for technical details.
 ### 🛸 traj_interp
 **Trajectory interpolator with complete PX4 integration**
 
-Implements the ffilter algorithm for smooth trajectory interpolation with integrated PX4 offboard control.
+Implements the algorithm for smooth trajectory interpolation with integrated PX4 offboard control.
 
 **Key Features:**
 - Smooth trajectory interpolation with jerk/acceleration limiting
@@ -128,7 +137,7 @@ Implements the ffilter algorithm for smooth trajectory interpolation with integr
 - Auto-disarming on land detection
 - Automatic PX4 mode management
 
-**Topics:**
+**Main Topics:**
 - **Subscriber:** `/path` (nav_msgs/Path) - Trajectory to follow
 - **Publisher:** `/px4_trajectory` (trajectory_msgs/MultiDOFJointTrajectory) - Interpolated trajectory
 - **Publisher:** `/fcu/in/vehicle_command` - PX4 commands (arm/disarm)
@@ -141,7 +150,7 @@ Implements the ffilter algorithm for smooth trajectory interpolation with integr
 
 Converts PX4 status messages to standard ROS2 odometry.
 
-**Topics:**
+**Main Topics:**
 - **Subscriber:** `/fcu/out/vehicle_odometry` (px4_msgs/VehicleOdometry)
 - **Publisher:** `/odom` (nav_msgs/Odometry)
 
@@ -150,7 +159,7 @@ Converts PX4 status messages to standard ROS2 odometry.
 
 Generates optimized 3D paths for drones with obstacle avoidance.
 
-**Topics:**
+**Main Topics:**
 - **Subscriber:** `/goal_pose` (geometry_msgs/PoseStamped) - Target goal
 - **Publisher:** `/path` (nav_msgs/Path) - Planned trajectory
 
@@ -159,16 +168,16 @@ Generates optimized 3D paths for drones with obstacle avoidance.
 
 Interface for manual drone control via keyboard/joystick.
 
-**Topics:**
+**Main Topics:**
 - **Subscriber:** `/cmd_vel` (geometry_msgs/Twist) - Velocity commands
 - **Publisher:** `/goal_pose` (geometry_msgs/PoseStamped) - Target pose
 
 ### 🛡️ babyk_drone_manager
 **State management and safety**
 
-Monitors drone status and implements safety functions.
+Monitors drone status and implements safety functions. Implements the communication layer with the GCS.
 
-**Topics:**
-- **Subscriber:** `/fcu/out/vehicle_status` (px4_msgs/VehicleStatus)
-- **Publisher:** `/safety_status` (std_msgs/Bool) - Safety status
+**Main Topics:**
+- **Subscriber:** `/seed_pdt_drone/command` (std_msgs/String) - new task primitive received
+- **Publisher:** `/seed_pdt_drone/status` (std_msgs/String) - task status to GCS
 

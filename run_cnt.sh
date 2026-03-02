@@ -13,8 +13,9 @@ docker run --rm -it --privileged \
 -v $(pwd)/PX4_neabotics:/root/PX4_neabotics:rw \
 -v $(pwd)/ros2_ws-src/px4_ros_com:/root/ros2_ws/src/px4_ros_com:rw \
 -v $(pwd)/ros2_ws-src/pkg:/root/ros2_ws/src/pkg:rw \
+-v $(pwd)/init_drone.sh:/root/init_drone.sh:rw \
 --env="DISPLAY=$DISPLAY" \
 --network host \
---name=leo-cnt leo-img bash
+--name=leo-cnt leo-img  /root/init_drone.sh
 
 
