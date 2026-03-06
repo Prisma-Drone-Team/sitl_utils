@@ -133,4 +133,9 @@ ENV PATH="/opt/gcc-arm-none-eabi-10.3-2021.10/bin:${PATH}"
 RUN apt update && apt-get install -y --no-install-recommends \ 
     ros-humble-joint-state-publisher* \
     ros-humble-robot-state-publisher* \
+    ros-humble-controller-manager* \
+    ros-humble-vision-msgs* \
+    ros-humble-joint-state-broadcaster* \
+    ros-humble-position-controllers* \
+    ros-humble-velocity-controllers* \
     && rm -rf /var/lib/apt/lists/*

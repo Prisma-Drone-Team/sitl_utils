@@ -23,6 +23,15 @@ source install/setup.bash
 colcon build --packages-select rover_description_pkg rover_gazebo
 source install/setup.bash
 
+# Setup ROS2 environment
+echo -e "${BLUE}🔧 PTZ simulation build...${NC}" 
+cd /root/ptz_ws
+source /opt/ros/humble/setup.bash
+colcon build --packages-select axis_msgs
+source install/setup.bash
+colcon build --packages-select axis_camera ptz_manager ptz_action_server_msgs camera_info_manager_py ptz_gz_sim
+source install/setup.bash
+
 # Setup PX4
 echo -e "${BLUE}🚁 Setup PX4 environment...${NC}"
 cd ~/ros2_ws
